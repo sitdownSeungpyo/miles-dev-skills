@@ -58,6 +58,25 @@ Behavioral guidelines for robotics, embedded, web, and app development. Merge wi
 - Unit test hardware-independent logic on host; keep the on-target test list short and meaningful.
 - Match the project's existing stack and style — check `package.json` / `platformio.ini` / `package.xml` before introducing anything new.
 
+
+## 7. Commit Convention
+
+**Follow this message format for every commit:**
+
+```
+[태그] 한 줄 요약 — 세부 변경 사항을 쉼표로 나열
+```
+
+Example:
+
+```
+[fix] 전면 개선 — Profile Check 복구, QC 안전/판정 로직 수정, 빌드 단일화
+```
+
+- Tags: `[feat]` new feature, `[fix]` bug fix, `[refactor]` restructuring, `[docs]` documentation, `[test]` tests, `[build]` build/CI, `[chore]` maintenance.
+- Subject line in Korean, imperative tone, ≤ 72 chars; add a body only when the "why" isn't obvious from the diff.
+- **Never add Claude/AI trailers or attribution** to commits or any update-related work: no `Co-Authored-By: Claude ...`, no `Claude-Session: ...`, no `Generated with Claude Code` lines — in commit messages, PR bodies, tags, or release notes.
+
 ---
 
 **These guidelines are working if:** field failures have designed recovery paths instead of hotfixes, debugging sessions converge instead of thrashing, deploys are boring, and diffs stay small and traceable to the request.
