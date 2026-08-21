@@ -1,0 +1,30 @@
+{
+  "name": "miles-dev-skills",
+  "id": "miles-dev-skills",
+  "owner": {
+    "name": "miles"
+  },
+  "metadata": {
+    "description": "Personal marketplace: robotics, embedded, web, and mobile app development skills",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "miles-dev-skills",
+      "source": "./",
+      "description": "ROS2, STM32/ESP32 firmware, hardware debugging, React/Next.js, FastAPI, Flutter, and robot deployment skills",
+      "version": "1.0.0",
+      "author": {
+        "name": "miles"
+      },
+      "keywords": [
+        "robotics",
+        "ros2",
+        "embedded",
+        "web",
+        "mobile"
+      ],
+      "category": "development"
+    }
+  ]
+}

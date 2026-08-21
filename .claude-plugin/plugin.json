@@ -1,0 +1,20 @@
+{
+  "name": "miles-dev-skills",
+  "description": "Specialized Claude Code skills for robotics (ROS2), embedded firmware (STM32/ESP32), web, and mobile app development",
+  "version": "1.0.0",
+  "author": {
+    "name": "miles"
+  },
+  "license": "MIT",
+  "keywords": ["robotics", "ros2", "embedded", "stm32", "esp32", "web", "react", "flutter", "mobile"],
+  "skills": [
+    "./skills/ros2-dev",
+    "./skills/embedded-firmware",
+    "./skills/platformio-arduino",
+    "./skills/hw-debug",
+    "./skills/web-frontend",
+    "./skills/api-backend",
+    "./skills/flutter-app",
+    "./skills/robot-deploy"
+  ]
+}
