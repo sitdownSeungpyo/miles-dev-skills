@@ -2,12 +2,13 @@
 
 로봇·임베디드·웹·앱 개발 작업에 특화된 개인용 Claude Code 스킬/플러그인 모음입니다.
 전세계 개발자들이 가장 많이 쓰는 스킬·플러그인 상위 100개 리서치(→ [REFERENCES.md](REFERENCES.md))를
-기반으로, 검증된 패턴만 추려 8개 스킬로 작성했습니다.
+기반으로, 검증된 패턴만 추려 9개 스킬로 작성했습니다.
 
 ## 포함된 스킬
 
 | 스킬 | 분야 | 트리거 상황 |
 |---|---|---|
+| `honest-reporting` | 공통(전 분야) | 모든 답변 — 확인/추정/모름 구분, 근거 없는 단정·무조건 동의 금지 |
 | `ros2-dev` | 로보틱스 | ROS 2 노드/launch/QoS/Nav2/micro-ROS 작업 시 |
 | `embedded-firmware` | 임베디드 | STM32/ESP32/nRF 펌웨어, ISR, RTOS, 드라이버 작성 시 |
 | `platformio-arduino` | 임베디드 | platformio.ini, .ino, Arduino 프레임워크 프로토타이핑 시 |

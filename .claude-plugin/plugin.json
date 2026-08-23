@@ -8,6 +8,7 @@
   "license": "MIT",
   "keywords": ["robotics", "ros2", "embedded", "stm32", "esp32", "web", "react", "flutter", "mobile"],
   "skills": [
+    "./skills/honest-reporting",
     "./skills/ros2-dev",
     "./skills/embedded-firmware",
     "./skills/platformio-arduino",
