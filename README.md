@@ -2,7 +2,7 @@
 
 로봇·임베디드·웹·앱 개발 작업에 특화된 개인용 Claude Code 스킬/플러그인 모음입니다.
 전세계 개발자들이 가장 많이 쓰는 스킬·플러그인 상위 100개 리서치(→ [REFERENCES.md](REFERENCES.md))를
-기반으로, 검증된 패턴만 추려 9개 스킬로 작성했습니다.
+기반으로, 검증된 패턴만 추려 11개 스킬과 4개 서브에이전트로 작성했습니다.
 
 ## 포함된 스킬
 
@@ -17,6 +17,26 @@
 | `api-backend` | 웹/서버 | FastAPI/Node API, 텔레메트리 수집, 로봇 관제 백엔드 시 |
 | `flutter-app` | 앱 | Flutter 앱, BLE/WiFi 로봇 컨트롤러 앱 개발 시 |
 | `robot-deploy` | 배포 | Docker/ROS 배포, 펌웨어 CI, OTA 업데이트 설계 시 |
+| `agent-orchestration` | 공통(워크플로) | 여러 파일·영역에 걸친 작업 — Fable이 계획하고 다른 모델 서브에이전트에 위임·검증 |
+| `orchestration-setup` | 셋업 | 새 PC에서 플러그인·기본 모델(Fable)·전역 CLAUDE.md를 한 번에 셋업 |
+
+## 오케스트레이션 (Fable 지휘 + 다른 모델이 작업)
+
+메인 세션(Fable)이 계획·분해·검증을 맡고, 실제 작업은 플러그인에 들어 있는 서브에이전트가 합니다.
+
+| 에이전트 | 모델 | 역할 |
+|---|---|---|
+| `scout` | Haiku | 읽기 전용 탐색, 위치 찾기, 로그 요약 |
+| `implementer` | Sonnet | 범위가 정해진 구현·테스트 작성 |
+| `verifier` | Sonnet | 빌드/테스트 실행, 결과 원문 보고 |
+| `reviewer` | Opus | 독립 코드 리뷰 (읽기 전용) |
+
+규칙은 `skills/agent-orchestration/SKILL.md`에 있습니다.
+
+### 새 PC 셋업
+
+저장소를 clone한 뒤 그 폴더에서 `claude`를 실행하고 **"SETUP.md 읽고 셋업해줘"**라고 하면 됩니다.
+자세한 절차는 [SETUP.md](SETUP.md)와 `skills/orchestration-setup/SKILL.md`를 참고하세요.
 
 ## 설치 방법
 
@@ -48,8 +68,10 @@ miles-dev-skills/
 ├── .claude-plugin/
 │   ├── plugin.json          # 플러그인 매니페스트
 │   └── marketplace.json     # 로컬 마켓플레이스 정의
+├── agents/                  # 서브에이전트 (scout/implementer/reviewer/verifier)
 ├── skills/
 │   └── <skill-name>/SKILL.md
+├── SETUP.md                 # 새 PC 셋업 진입점 (Claude가 읽고 실행)
 ├── REFERENCES.md            # 전세계 인기 스킬/플러그인 TOP 100 리서치
 └── README.md
 ```
