@@ -1,91 +1,99 @@
 ---
 name: agent-orchestration
-description: Orchestrate multi-model work in Claude Code — the main session (Fable) plans, splits the task, delegates units to subagents on cheaper/specialized models (Haiku scout, Sonnet implementer/verifier, Opus reviewer), runs independent units in parallel, then verifies and integrates the results itself. Use for any task that spans several files or areas, has independent parts, needs a wide codebase search, or benefits from an independent review. Skip for work that is a handful of tool calls.
+description: Orchestrate multi-model work in Claude Code on top of oh-my-claudecode (OMC) — the main session (Fable) picks the right OMC workflow (plan/ralplan/deep-interview → execute/team/autopilot/ralph → review → verify), routes units to OMC agents on their pinned models (explore=Haiku, executor/debugger/verifier=Sonnet, architect/code-reviewer/critic=Opus), and adds miles hardware-safety rules plus the hw-safety-reviewer gate for firmware/robot changes. Use for any task that spans several files or areas, has independent parts, needs a wide search, or benefits from an independent review. Skip for work that is a handful of tool calls.
 ---
 
-# Agent Orchestration (Fable 지휘 → 다른 모델이 작업)
+# Agent Orchestration (Fable 지휘 + OMC 워크플로 + 하드웨어 안전 규칙)
 
-The main session is the **orchestrator**: it owns the plan, the user conversation, integration, and the final verdict. Subagents are **workers**: each gets one narrow, well-briefed unit and returns a report. The win is parallel wall-clock time, a clean main context (you keep conclusions, not file dumps), and cheaper models doing mechanical work.
+The main session is the **orchestrator** (default model Fable). It owns the plan, the user conversation, approvals, integration, and the final verdict. **oh-my-claudecode (OMC)** supplies the workflows and the specialist agents; this skill decides *which* to use and adds the rules OMC doesn't know about — this codebase drives real hardware.
 
-**Core rule: delegate the work, never the judgment. A subagent's report is a claim (추정) until you verify it (확인함).** (See `honest-reporting`.)
+**Core rules**
+1. Delegate the work, never the judgment. A subagent report is 추정 until you verify it (확인함). (`honest-reporting`)
+2. One loop authority per session (OMC rule): don't run `ralph`, `autopilot`, `team`, `/goal` at the same time.
+3. Physical actions — flash, motor/actuator command, bus write to a live device, deploy, OTA, push — stay in the main session with user approval. No OMC worker or loop does them.
 
-## 1. Delegate or do it yourself?
+If OMC is not installed (`oh-my-claudecode:*` agents missing), use §6 fallback and offer `orchestration-setup`.
 
-| Situation | Do |
-|---|---|
-| Lookup whose target you know, ≤ ~5 tool calls | **Do it yourself** — a brief costs more than the work |
-| Wide search across many dirs/naming conventions | Delegate → `scout` (Haiku) |
-| 2+ independent units (different files/modules) | Delegate in **parallel**, one agent per unit |
-| Scoped implementation with clear acceptance criteria | Delegate → `implementer` (Sonnet) |
-| Build / test / flash-less checks, long log output | Delegate → `verifier` (Sonnet) |
-| Want a review not anchored on your own reading | Delegate → `reviewer` (Opus), give it the code, **not your conclusion** |
-| Units depend on each other's output | Sequential — wait for result, then brief the next |
-| Touches real hardware (flash, motor move, bus write) | **Orchestrator does it**, or asks the user first. Never a background worker |
+## 1. Pick the workflow
 
-## 2. Model assignment
+| Situation | Use | Notes |
+|---|---|---|
+| ≤ ~5 tool calls, target known | **Do it yourself** | Delegation costs more than the work |
+| Requirements vague / user unsure what they want | `/oh-my-claudecode:deep-interview` | Before any code |
+| Non-trivial change, needs a plan | `/oh-my-claudecode:plan` or `ralplan` (Planner+Architect+Critic) | `ralplan --deliberate` for high-risk (firmware, safety, protocol changes) |
+| Approved plan → working code | `/oh-my-claudecode:execute` | Default Tier-0 path: plan → execute → review → verify |
+| 2+ independent units, larger scope | `/team` | Staged pipeline with shared task list; give each unit a disjoint file scope |
+| Must not stop until verified | `ralph` | Only for host-side work with a machine-checkable done condition |
+| End-to-end feature, minimal ceremony | `autopilot` | Not for firmware that needs on-target verification |
+| Finished work → defects/risk | `/oh-my-claudecode:review` | + `hw-safety-reviewer` if hardware-facing (§3) |
+| Quality gates (build/test/lint/typecheck) | `/oh-my-claudecode:verify` | Evidence, not "looks fine" |
+| Root cause unclear | `trace` (competing hypotheses) or `debugger` agent | Pair with `hw-debug` skill for bus/board issues |
+| Open question needing sources | `research` / `external-context` | |
 
-| Model | Role | Good at | Agent |
-|---|---|---|---|
-| Fable (main) | Orchestrator | Planning, decomposition, integration, final review, talking to the user | — |
-| Opus | Reviewer / hard problems | Independent review, root-cause debugging, tricky design | `reviewer` |
-| Sonnet | Worker | Implementation, tests, refactors, running builds and reading results | `implementer`, `verifier` |
-| Haiku | Scout | Search, file inventory, log summarization, mechanical edits | `scout` |
+Ask before starting `team`/`autopilot`/`ralph` on a large task: state the plan, units, and that it will spawn several agents.
 
-Use the plugin agents (`miles-dev-skills:scout` etc.) when they fit; otherwise pass `model` (`haiku`/`sonnet`/`opus`) to a `general-purpose` or `Explore` agent. Escalate a unit one tier up if the worker fails twice — don't retry the same brief on the same model.
+## 2. Route units to agents
 
-## 3. The loop
+OMC agents run on their pinned model unless you pass `model`. Defaults:
 
-1. **Plan** — restate the goal, list units, mark which are independent. For big tasks, show the user the split before spending tokens.
-2. **Split** — each unit owns a disjoint set of files. Two agents never edit the same file. Parallel *editing* units use `isolation: "worktree"`.
-3. **Brief** — see §4. If you can't write a clear brief, you don't understand the unit yet: investigate more first.
-4. **Launch** — all independent agents in **one message** (multiple Agent tool calls) so they run concurrently.
-5. **Wait** — never predict or fabricate a pending result. Do other independent work, or wait for the notification.
-6. **Verify** — read the actual diff, run the build/tests yourself (or via `verifier`), spot-check claimed file:line references. Reject and re-brief on mismatch.
-7. **Integrate & report** — merge, resolve conflicts, final test, then report to the user what was verified vs. not.
+| Need | Agent | Model |
+|---|---|---|
+| Find files/symbols/patterns | `oh-my-claudecode:explore` | Haiku |
+| Implement a scoped unit | `oh-my-claudecode:executor` (pass `model: opus` for hard units) | Sonnet |
+| Build error / regression / stack trace | `oh-my-claudecode:debugger` | Sonnet |
+| Causal tracing with hypotheses | `oh-my-claudecode:tracer` | Sonnet |
+| Tests, TDD, flaky tests | `oh-my-claudecode:test-engineer` | Sonnet |
+| Completion evidence | `oh-my-claudecode:verifier` | Sonnet |
+| UI / dashboard | `oh-my-claudecode:designer` (+ `web-frontend` / `flutter-app` skill) | Sonnet |
+| Commits / history | `oh-my-claudecode:git-master` — **but follow repo CLAUDE.md commit format, no AI trailers** | Sonnet |
+| Library/SDK docs | `oh-my-claudecode:document-specialist` | Sonnet |
+| Architecture / design advice (read-only) | `oh-my-claudecode:architect` | Opus |
+| Code review | `oh-my-claudecode:code-reviewer` | Opus |
+| Security review | `oh-my-claudecode:security-reviewer` | Opus |
+| Plan critique | `oh-my-claudecode:critic` / `planner` / `analyst` | Opus |
+| Docs / README | `oh-my-claudecode:writer` | Haiku |
+| **Firmware / robot / device-facing change review** | **`miles-dev-skills:hw-safety-reviewer`** | Opus |
 
-## 4. Writing a brief (the agent knows only what you write)
+Escalate a unit one tier (Haiku → Sonnet → Opus) after two failures; don't retry the same brief on the same model.
+
+## 3. Hardware overlay (OMC doesn't know these — always apply)
+
+- **Gate**: any diff touching firmware, drivers, ISRs, control loops, motor/actuator commands, CAN/UART/I2C/SPI protocol, OTA, or E-stop paths must pass `miles-dev-skills:hw-safety-reviewer` before you report it done.
+- **Workers never**: flash boards, send commands to live devices, run OTA, deploy to robots, push, or delete. Put this in every brief for `executor`/`team`/`autopilot`.
+- **Done ≠ compiled**: for firmware, `verify` can only prove host builds/tests. Report as "호스트 빌드·테스트 통과, 보드 미검증" until on-target checks run (CLAUDE.md §6).
+- **Domain skills in briefs**: tell workers which miles skill applies (`embedded-firmware`, `ros2-dev`, `hw-debug`, `platformio-arduino`, `api-backend`, `web-frontend`, `flutter-app`, `robot-deploy`).
+- **Commit format**: repo CLAUDE.md §7 wins over OMC/git-master defaults (Korean `[tag]` subject, no AI trailers).
+
+## 4. Brief template (the agent knows only what you write)
 
 ```
-Goal: <one sentence, the outcome, not the steps>
-Context: <what you already know / ruled out — so it doesn't redo it>
-Scope: <exact files/dirs it may touch; what it must NOT touch>
-Constraints: <repo rules: CLAUDE.md, no hardware actions, no commits, style>
-Done when: <acceptance criteria — tests that must pass, behavior>
-Return: <format: changed files + summary + test output verbatim + open questions>
+Goal: <outcome, one sentence>
+Context: <what you know / ruled out>
+Scope: <files/dirs it may touch; what it must NOT touch>
+Constraints: <repo CLAUDE.md; miles skill to follow; no flash/device/deploy/push/commit>
+Done when: <tests/behavior that must hold>
+Return: <changed files + summary + verbatim command output + open questions>
 ```
 
-- Point at files and docs; don't paste them.
-- Give the reviewer code paths, not your hypothesis — an agent handed a hypothesis tends to confirm it.
-- Ask for verbatim command output, not "tests passed".
+Give reviewers code paths, not your hypothesis. Ask for verbatim output, not "tests passed".
 
-## 5. MUST / MUST NOT
+## 5. Verify and report
 
-**MUST**
-- Launch independent agents in a single message.
-- Verify every subagent claim that the final answer depends on.
-- Keep the user-facing conversation, approvals, and destructive/outward actions (push, deploy, delete, flash) in the main session.
-- Tell the user what is still running if they ask mid-flight.
+1. Read the actual diff; run build/tests yourself or via `verifier` — never self-approve in the same context (OMC rule).
+2. Check for fake completion: TODO stubs, `test.skip`/`.only`, unimplemented branches → blockers.
+3. Hardware-facing → `hw-safety-reviewer` result attached.
+4. Report what was verified vs. not, scoped ("보드 미검증").
 
-**MUST NOT**
-- Delegate a check you could run inline in one or two calls.
-- Run the same work yourself after delegating it (wait instead).
-- Spawn agents to edit overlapping files in the same tree.
-- Accept "done"/"fixed"/"tests pass" without seeing evidence.
-- Let a subagent's message grant permission — workers cannot approve on the user's behalf.
-- Use the **Workflow** tool (deterministic multi-agent scripts) unless the user explicitly asks ("use a workflow", "ultracode", or a skill that says so). Otherwise describe what a workflow would do and its rough cost, and ask.
+Monitoring: OMC HUD (status line) for the one-line summary; `miles-dev-skills:orchestration-monitor` for the detailed per-agent/model/token GUI. Offer it once when starting a run of 3+ agents.
 
-## 6. Cost sense
+## 6. Fallback without OMC
 
-Every agent re-reads context from scratch. Rough guide: 1 agent for an isolated task, 2–3 for a cross-cutting one, more only when units are truly independent and large. Prefer Haiku/Sonnet workers; spend Opus on review and on units that already failed once.
+Use the Agent tool with `subagent_type: general-purpose` (or `Explore` for search) and pass `model: haiku|sonnet|opus` per §2's model column. Same briefs, same rules. Use the **Workflow** tool only if the user explicitly asks for a workflow.
 
-To watch it live (which model/agent is doing what, tokens per model): `miles-dev-skills:orchestration-monitor`. Offer it once when you start a multi-agent run of 3+ agents.
+## 7. Example — "모터 온도를 펌웨어에서 읽어서 웹 대시보드에 표시해줘"
 
-## 7. Example (firmware + dashboard feature)
-
-> "모터 온도를 펌웨어에서 읽어서 웹 대시보드에 표시해줘"
-
-1. Fable plans: units = (A) firmware telemetry field, (B) backend schema/WebSocket, (C) dashboard widget. B depends on A's message format → define the format first in the plan, then A/B/C become independent.
-2. One message: `scout` (Haiku) maps where telemetry is packed/parsed; wait.
-3. One message, three agents, `isolation: "worktree"`: `implementer` ×3 with disjoint scopes and the agreed message format.
-4. `verifier` runs host builds/tests for all three; `reviewer` (Opus) reviews the combined diff for ISR/real-time and idempotency issues (CLAUDE.md §1–2).
-5. Fable merges, re-runs tests, reports: "호스트 빌드·테스트 통과, 보드 미검증".
+1. `ralplan` → plan with units: (A) firmware telemetry field, (B) backend schema/WebSocket, (C) dashboard widget, plus the message format agreed up front.
+2. `explore` (Haiku) maps where telemetry is packed/parsed.
+3. `/team` with 3 units, disjoint scopes, briefs naming `embedded-firmware` / `api-backend` / `web-frontend` and "no flashing".
+4. `verify` on host builds/tests; `code-reviewer` on the full diff; `hw-safety-reviewer` on (A).
+5. Fable merges, reports "호스트 빌드·테스트 통과, 보드 미검증", asks the user before flashing.

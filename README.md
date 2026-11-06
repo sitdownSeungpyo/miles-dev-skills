@@ -2,7 +2,9 @@
 
 로봇·임베디드·웹·앱 개발 작업에 특화된 개인용 Claude Code 스킬/플러그인 모음입니다.
 전세계 개발자들이 가장 많이 쓰는 스킬·플러그인 상위 100개 리서치(→ [REFERENCES.md](REFERENCES.md))를
-기반으로, 검증된 패턴만 추려 12개 스킬과 4개 서브에이전트로 작성했습니다.
+기반으로, 검증된 패턴만 추려 12개 스킬과 1개 서브에이전트로 작성했습니다.
+멀티 에이전트 오케스트레이션은 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode)(OMC, MIT) 위에서 동작하며,
+miles-dev-skills는 OMC가 모르는 **하드웨어 안전 규칙**과 도메인 스킬을 그 위에 얹습니다.
 
 ## 포함된 스킬
 
@@ -17,22 +19,20 @@
 | `api-backend` | 웹/서버 | FastAPI/Node API, 텔레메트리 수집, 로봇 관제 백엔드 시 |
 | `flutter-app` | 앱 | Flutter 앱, BLE/WiFi 로봇 컨트롤러 앱 개발 시 |
 | `robot-deploy` | 배포 | Docker/ROS 배포, 펌웨어 CI, OTA 업데이트 설계 시 |
-| `agent-orchestration` | 공통(워크플로) | 여러 파일·영역에 걸친 작업 — Fable이 계획하고 다른 모델 서브에이전트에 위임·검증 |
+| `agent-orchestration` | 공통(워크플로) | 여러 파일·영역에 걸친 작업 — Fable이 OMC 워크플로·에이전트를 골라 위임하고, 하드웨어 안전 규칙 적용·검증 |
 | `orchestration-monitor` | 모니터링 | "모니터 띄워줘" — 모델·서브에이전트 작업 현황과 토큰 사용량 GUI (cmux 분할창/브라우저) |
-| `orchestration-setup` | 셋업 | 새 PC에서 플러그인·기본 모델(Fable)·전역 CLAUDE.md를 한 번에 셋업 |
+| `orchestration-setup` | 셋업 | 새 PC에서 miles + OMC 플러그인, OMC HUD, 기본 모델(Fable), 전역 CLAUDE.md를 한 번에 셋업 |
 
-## 오케스트레이션 (Fable 지휘 + 다른 모델이 작업)
+## 오케스트레이션 (Fable 지휘 + oh-my-claudecode)
 
-메인 세션(Fable)이 계획·분해·검증을 맡고, 실제 작업은 플러그인에 들어 있는 서브에이전트가 합니다.
+메인 세션(Fable)이 계획·모드 선택·검증·승인을 맡고, 실제 작업은 OMC 워크플로와 에이전트가 합니다.
 
-| 에이전트 | 모델 | 역할 |
-|---|---|---|
-| `scout` | Haiku | 읽기 전용 탐색, 위치 찾기, 로그 요약 |
-| `implementer` | Sonnet | 범위가 정해진 구현·테스트 작성 |
-| `verifier` | Sonnet | 빌드/테스트 실행, 결과 원문 보고 |
-| `reviewer` | Opus | 독립 코드 리뷰 (읽기 전용) |
+- **기본 흐름:** `plan`/`ralplan` → `execute`(독립 작업이 여럿이면 `/team`) → `review` → `verify`. 요구사항이 모호하면 먼저 `deep-interview`.
+- **OMC 에이전트(모델 고정):** `explore`(Haiku), `executor`·`debugger`·`tracer`·`test-engineer`·`verifier`·`designer`(Sonnet), `architect`·`code-reviewer`·`security-reviewer`·`critic`·`planner`(Opus) 등 19종.
+- **miles 전용 에이전트:** `hw-safety-reviewer`(Opus, 읽기 전용). 펌웨어·드라이버·ISR·제어 루프·버스 프로토콜·E-stop·OTA 변경의 필수 관문입니다.
+- **하드웨어 규칙:** 보드 플래시, 실제 장치 명령, OTA, 로봇 배포, push는 메인 세션에서 사용자 승인 후에만 합니다. OMC 워커나 루프(`team`/`autopilot`/`ralph`)는 하지 않습니다.
 
-규칙은 `skills/agent-orchestration/SKILL.md`에 있습니다.
+규칙 전체는 `skills/agent-orchestration/SKILL.md`에 있습니다. OMC 설명은 [OMC README](https://github.com/Yeachan-Heo/oh-my-claudecode)를 참고하세요.
 
 ### 모니터 GUI
 
@@ -42,7 +42,7 @@ Claude에게 **"모니터 띄워줘"**라고 하거나 직접 실행하세요 (P
 python3 skills/orchestration-monitor/monitor.py --launch
 ```
 
-`http://127.0.0.1:8765/`에서 모델별 토큰 사용량, 세션별 모델 비율, 서브에이전트 상태와 마지막 작업을 3초마다 갱신해 보여줍니다. cmux 안에서 실행하면 옆 분할창에 열립니다.
+`http://127.0.0.1:8765/`에서 모델별 토큰 사용량, 세션별 모델 비율, 서브에이전트(OMC 에이전트 포함) 상태와 마지막 작업을 3초마다 갱신해 보여줍니다. cmux 안에서 실행하면 옆 분할창에 열립니다. 한 줄 요약은 OMC HUD(상태줄)에서 볼 수 있습니다.
 
 ### 새 PC 셋업
 
@@ -79,7 +79,7 @@ miles-dev-skills/
 ├── .claude-plugin/
 │   ├── plugin.json          # 플러그인 매니페스트
 │   └── marketplace.json     # 로컬 마켓플레이스 정의
-├── agents/                  # 서브에이전트 (scout/implementer/reviewer/verifier)
+├── agents/                  # hw-safety-reviewer (나머지 에이전트는 OMC가 제공)
 ├── skills/
 │   └── <skill-name>/SKILL.md
 ├── SETUP.md                 # 새 PC 셋업 진입점 (Claude가 읽고 실행)

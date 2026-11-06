@@ -5,6 +5,8 @@ description: Open a local web GUI that shows which models and subagents are work
 
 # Orchestration Monitor (모델·서브에이전트 작업 현황 + 토큰 GUI)
 
+Complements the oh-my-claudecode HUD: the HUD is a one-line status bar (rate limits, context, session); this monitor is the detailed view — every session and subagent (OMC agents included), its model, status, last action, and tokens.
+
 A stdlib-only Python server (`monitor.py` + `monitor.html` in this skill's directory) that reads Claude Code transcripts under `~/.claude/projects/` **read-only** and serves a dashboard on `http://127.0.0.1:8765/` (localhost only), refreshing every 3 s.
 
 ## Launch

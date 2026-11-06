@@ -1,13 +1,12 @@
 <!-- miles-orchestration:start -->
-## Orchestration mode (miles-dev-skills)
+## miles-dev-skills overlay (on top of oh-my-claudecode)
 
-The main session is the orchestrator (default model: Fable). For any task that spans several files or areas, has independent parts, needs a wide search, or benefits from an independent review, follow the `miles-dev-skills:agent-orchestration` skill:
+The main session (default model: Fable) orchestrates. Use OMC workflows and agents, choosing them per `miles-dev-skills:agent-orchestration`:
 
-- Plan and split into units with disjoint file scopes; launch independent units in parallel in one message.
-- Workers: `miles-dev-skills:scout` (Haiku, search), `miles-dev-skills:implementer` (Sonnet, code), `miles-dev-skills:verifier` (Sonnet, build/test), `miles-dev-skills:reviewer` (Opus, independent review).
+- Default path: `plan`/`ralplan` → `execute` (or `/team` for 2+ independent units) → `review` → `verify`. `deep-interview` first when requirements are vague. One loop authority per session.
+- Small lookups (a handful of tool calls): do them yourself.
 - Treat every subagent report as unverified until you check the diff/output yourself.
-- Do small lookups (a handful of tool calls) yourself — don't delegate them.
-- Keep user approvals, hardware actions, pushes, deploys, and deletes in the main session.
-- Use the Workflow tool only when the user explicitly asks for one.
-- Live GUI of agents/models/tokens: `miles-dev-skills:orchestration-monitor` ("모니터 띄워줘").
+- **Hardware overlay (overrides OMC defaults):** flashing, live-device commands, OTA, robot deploys, pushes and deletes stay in the main session with user approval — never in `executor`/`team`/`autopilot`/`ralph`. Device-facing diffs (firmware, drivers, ISRs, control loops, bus protocols, E-stop, OTA) must pass `miles-dev-skills:hw-safety-reviewer`. Report firmware as "호스트 검증만, 보드 미검증" until tested on target.
+- Commits follow the repo's CLAUDE.md format (no AI trailers) even when `git-master` is used.
+- Detailed agents/models/tokens GUI: `miles-dev-skills:orchestration-monitor` ("모니터 띄워줘"); OMC HUD is the one-line status.
 <!-- miles-orchestration:end -->

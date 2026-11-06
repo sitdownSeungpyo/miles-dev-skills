@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Personal marketplace: robotics, embedded, web, and mobile app development skills",
-    "version": "1.2.0"
+    "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "miles-dev-skills",
       "source": "./",
-      "description": "ROS2, STM32/ESP32 firmware, hardware debugging, React/Next.js, FastAPI, Flutter, and robot deployment skills, plus Fable-led multi-model orchestration (skills + subagents)",
-      "version": "1.2.0",
+      "description": "ROS2, STM32/ESP32 firmware, hardware debugging, React/Next.js, FastAPI, Flutter, and robot deployment skills, plus Fable-led orchestration on oh-my-claudecode with a hardware-safety overlay",
+      "version": "2.0.0",
       "author": {
         "name": "miles"
       },

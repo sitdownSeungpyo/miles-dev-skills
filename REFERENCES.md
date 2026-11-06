@@ -133,6 +133,10 @@
 99. license-checker/compliance
 100. release-manager (버전/태그/배포 노트)
 
+## 연동 중인 외부 플러그인
+
+- [oh-my-claudecode (OMC)](https://github.com/Yeachan-Heo/oh-my-claudecode) — MIT. 멀티 에이전트 오케스트레이션(team, autopilot, ralph, ralplan, execute, verify), 19개 모델 고정 에이전트, HUD 상태줄. miles-dev-skills의 `agent-orchestration`과 `orchestration-setup`이 이 플러그인을 전제로 합니다(코드는 복사하지 않고 플러그인으로 설치).
+
 ## 출처
 
 - [Anthropic 공식 플러그인 디렉토리](https://claude.com/plugins) / [claude-plugins-official](https://github.com/anthropics/claude-plugins-official)
