@@ -2,7 +2,7 @@
 
 로봇·임베디드·웹·앱 개발 작업에 특화된 개인용 Claude Code 스킬/플러그인 모음입니다.
 전세계 개발자들이 가장 많이 쓰는 스킬·플러그인 상위 100개 리서치(→ [REFERENCES.md](REFERENCES.md))를
-기반으로, 검증된 패턴만 추려 11개 스킬과 4개 서브에이전트로 작성했습니다.
+기반으로, 검증된 패턴만 추려 12개 스킬과 4개 서브에이전트로 작성했습니다.
 
 ## 포함된 스킬
 
@@ -18,6 +18,7 @@
 | `flutter-app` | 앱 | Flutter 앱, BLE/WiFi 로봇 컨트롤러 앱 개발 시 |
 | `robot-deploy` | 배포 | Docker/ROS 배포, 펌웨어 CI, OTA 업데이트 설계 시 |
 | `agent-orchestration` | 공통(워크플로) | 여러 파일·영역에 걸친 작업 — Fable이 계획하고 다른 모델 서브에이전트에 위임·검증 |
+| `orchestration-monitor` | 모니터링 | "모니터 띄워줘" — 모델·서브에이전트 작업 현황과 토큰 사용량 GUI (cmux 분할창/브라우저) |
 | `orchestration-setup` | 셋업 | 새 PC에서 플러그인·기본 모델(Fable)·전역 CLAUDE.md를 한 번에 셋업 |
 
 ## 오케스트레이션 (Fable 지휘 + 다른 모델이 작업)
@@ -32,6 +33,16 @@
 | `reviewer` | Opus | 독립 코드 리뷰 (읽기 전용) |
 
 규칙은 `skills/agent-orchestration/SKILL.md`에 있습니다.
+
+### 모니터 GUI
+
+Claude에게 **"모니터 띄워줘"**라고 하거나 직접 실행하세요 (Python 3 표준 라이브러리만 사용):
+
+```bash
+python3 skills/orchestration-monitor/monitor.py --launch
+```
+
+`http://127.0.0.1:8765/`에서 모델별 토큰 사용량, 세션별 모델 비율, 서브에이전트 상태와 마지막 작업을 3초마다 갱신해 보여줍니다. cmux 안에서 실행하면 옆 분할창에 열립니다.
 
 ### 새 PC 셋업
 

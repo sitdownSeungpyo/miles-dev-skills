@@ -78,6 +78,8 @@ Return: <format: changed files + summary + test output verbatim + open questions
 
 Every agent re-reads context from scratch. Rough guide: 1 agent for an isolated task, 2–3 for a cross-cutting one, more only when units are truly independent and large. Prefer Haiku/Sonnet workers; spend Opus on review and on units that already failed once.
 
+To watch it live (which model/agent is doing what, tokens per model): `miles-dev-skills:orchestration-monitor`. Offer it once when you start a multi-agent run of 3+ agents.
+
 ## 7. Example (firmware + dashboard feature)
 
 > "모터 온도를 펌웨어에서 읽어서 웹 대시보드에 표시해줘"

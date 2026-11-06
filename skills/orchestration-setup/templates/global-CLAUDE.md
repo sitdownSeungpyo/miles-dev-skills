@@ -9,4 +9,5 @@ The main session is the orchestrator (default model: Fable). For any task that s
 - Do small lookups (a handful of tool calls) yourself — don't delegate them.
 - Keep user approvals, hardware actions, pushes, deploys, and deletes in the main session.
 - Use the Workflow tool only when the user explicitly asks for one.
+- Live GUI of agents/models/tokens: `miles-dev-skills:orchestration-monitor` ("모니터 띄워줘").
 <!-- miles-orchestration:end -->
