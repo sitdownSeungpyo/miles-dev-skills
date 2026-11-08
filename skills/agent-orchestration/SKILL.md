@@ -1,11 +1,11 @@
 ---
 name: agent-orchestration
-description: Load at the start of any multi-step session. Orchestrate multi-model work in Claude Code on top of oh-my-claudecode (OMC) — every Agent call passes `model` so Haiku and Sonnet do their share instead of the main model doing everything. The main session (Fable) picks the right OMC workflow (plan/ralplan/deep-interview → execute/team/autopilot/ralph → review → verify), routes units to OMC agents on their pinned models (explore=Haiku, executor/debugger/verifier=Sonnet, architect/code-reviewer/critic=Opus), and adds miles hardware-safety rules plus the hw-safety-reviewer gate for firmware/robot changes. Use for any task that spans several files or areas, has independent parts, needs a wide search, or benefits from an independent review. Skip for work that is a handful of tool calls.
+description: Load at the start of any multi-step session. Orchestrate multi-model work in Claude Code on top of oh-my-claudecode (OMC) — the main session (Fable) only orchestrates; implementation goes to executor on Opus, search/docs to Haiku, evidence to Sonnet, and every Agent call passes `model`. The main session picks the right OMC workflow (plan/ralplan/deep-interview → execute/team/autopilot/ralph → review → verify), routes units to OMC agents (explore/writer=Haiku, verifier=Sonnet, executor/debugger/architect/code-reviewer/critic=Opus), and adds miles hardware-safety rules plus the hw-safety-reviewer gate for firmware/robot changes. Use for any task that spans several files or areas, has independent parts, needs a wide search, or benefits from an independent review. Skip for work that is a handful of tool calls.
 ---
 
 # Agent Orchestration (Fable 지휘 + OMC 워크플로 + 하드웨어 안전 규칙)
 
-The main session is the **orchestrator** (default model Fable). It owns the plan, the user conversation, approvals, integration, and the final verdict. **oh-my-claudecode (OMC)** supplies the workflows and the specialist agents; this skill decides *which* to use and adds the rules OMC doesn't know about — this codebase drives real hardware.
+The main session is the **orchestrator** (default model Fable). It owns the plan, the user conversation, approvals, integration, and the final verdict — and little else. **The main model does not do the work**: in Claude Code everything the main session reads or edits itself is billed to and done by the main model, so a Fable session that implements is a Fable session, and OMC adds nothing. The working model is **Opus** (executor/debugger); Haiku and Sonnet take what they are good enough for. **oh-my-claudecode (OMC)** supplies the workflows and the specialist agents; this skill decides *which* to use and adds the rules OMC doesn't know about — this codebase drives real hardware.
 
 **Core rules**
 1. Delegate the work, never the judgment. A subagent report is 추정 until you verify it (확인함). (`honest-reporting`)
@@ -15,7 +15,7 @@ The main session is the **orchestrator** (default model Fable). It owns the plan
    - Load this skill at the **start** of any multi-step session, not once the work is done.
    - Every Agent call names the OMC/miles agent **and passes `model`** explicitly (§2's column). Without it the call may be labelled `inherit`.
    - Never use `general-purpose` when OMC agents exist: it inherits the main model, so a "delegated" review ran on Opus anyway.
-   - "≤ 5 tool calls, do it yourself" (§1) is per task, not a habit for the session. Searches across files go to `explore` (Haiku), README/docs to `writer` (Haiku), a scoped implementation to `executor` (Sonnet), test/build evidence to `verifier` (Sonnet).
+   - The main session does only what needs its judgment or authority: planning and splitting, reading a returned diff/report to accept or reject it, short confirmations (one read, one test run), user questions, and the main-session-only actions (hardware commands, commit, push). Anything else is delegated: code and config changes to `executor` with `model: opus`, debugging to `debugger` (opus), searches across files to `explore` (Haiku), README/docs to `writer` (Haiku), test/build evidence to `verifier` (Sonnet).
    - Before reporting a unit done, check the routing: which agent and model did the search, the edit, the review? If the answer is "main model" for all three, delegate the next unit.
 
 If OMC is not installed (`oh-my-claudecode:*` agents missing), use §6 fallback and offer `orchestration-setup`.
@@ -24,7 +24,7 @@ If OMC is not installed (`oh-my-claudecode:*` agents missing), use §6 fallback 
 
 | Situation | Use | Notes |
 |---|---|---|
-| ≤ ~5 tool calls, target known | **Do it yourself** | Delegation costs more than the work |
+| One read or one command to confirm something, target known | **Do it yourself** | Anything that edits code/config or spans files is delegated (rule 4) |
 | Requirements vague / user unsure what they want | `/oh-my-claudecode:deep-interview` | Before any code |
 | Non-trivial change, needs a plan | `/oh-my-claudecode:plan` or `ralplan` (Planner+Architect+Critic) | `ralplan --deliberate` for high-risk (firmware, safety, protocol changes) |
 | Approved plan → working code | `/oh-my-claudecode:execute` | Default Tier-0 path: plan → execute → review → verify |
@@ -45,8 +45,8 @@ OMC agents run on their pinned model unless you pass `model`. Defaults:
 | Need | Agent | Model |
 |---|---|---|
 | Find files/symbols/patterns | `oh-my-claudecode:explore` | Haiku |
-| Implement a scoped unit | `oh-my-claudecode:executor` (pass `model: opus` for hard units) | Sonnet |
-| Build error / regression / stack trace | `oh-my-claudecode:debugger` | Sonnet |
+| Implement a scoped unit (the main work) | `oh-my-claudecode:executor` — pass `model: opus` | **Opus** (`sonnet` for mechanical edits) |
+| Build error / regression / stack trace | `oh-my-claudecode:debugger` — pass `model: opus` | **Opus** |
 | Causal tracing with hypotheses | `oh-my-claudecode:tracer` | Sonnet |
 | Tests, TDD, flaky tests | `oh-my-claudecode:test-engineer` | Sonnet |
 | Completion evidence | `oh-my-claudecode:verifier` | Sonnet |
@@ -60,7 +60,7 @@ OMC agents run on their pinned model unless you pass `model`. Defaults:
 | Docs / README | `oh-my-claudecode:writer` | Haiku |
 | **Firmware / robot / device-facing change review** | **`miles-dev-skills:hw-safety-reviewer`** | Opus |
 
-Escalate a unit one tier (Haiku → Sonnet → Opus) after two failures; don't retry the same brief on the same model.
+Escalate a unit one tier (Haiku → Sonnet → Opus) after two failures; don't retry the same brief on the same model. Fable is not a worker tier: if Opus fails twice, re-plan the unit (smaller scope, better brief) rather than doing it in the main session.
 
 ## 3. Hardware overlay (OMC doesn't know these — always apply)
 
