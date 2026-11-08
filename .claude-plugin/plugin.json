@@ -1,7 +1,7 @@
 {
   "name": "miles-dev-skills",
   "description": "Specialized Claude Code skills for robotics (ROS2), embedded firmware (STM32/ESP32), web, and mobile app development",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": {
     "name": "miles"
   },

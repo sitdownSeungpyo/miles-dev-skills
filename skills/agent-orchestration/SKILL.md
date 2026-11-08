@@ -1,6 +1,6 @@
 ---
 name: agent-orchestration
-description: Orchestrate multi-model work in Claude Code on top of oh-my-claudecode (OMC) — the main session (Fable) picks the right OMC workflow (plan/ralplan/deep-interview → execute/team/autopilot/ralph → review → verify), routes units to OMC agents on their pinned models (explore=Haiku, executor/debugger/verifier=Sonnet, architect/code-reviewer/critic=Opus), and adds miles hardware-safety rules plus the hw-safety-reviewer gate for firmware/robot changes. Use for any task that spans several files or areas, has independent parts, needs a wide search, or benefits from an independent review. Skip for work that is a handful of tool calls.
+description: Load at the start of any multi-step session. Orchestrate multi-model work in Claude Code on top of oh-my-claudecode (OMC) — every Agent call passes `model` so Haiku and Sonnet do their share instead of the main model doing everything. The main session (Fable) picks the right OMC workflow (plan/ralplan/deep-interview → execute/team/autopilot/ralph → review → verify), routes units to OMC agents on their pinned models (explore=Haiku, executor/debugger/verifier=Sonnet, architect/code-reviewer/critic=Opus), and adds miles hardware-safety rules plus the hw-safety-reviewer gate for firmware/robot changes. Use for any task that spans several files or areas, has independent parts, needs a wide search, or benefits from an independent review. Skip for work that is a handful of tool calls.
 ---
 
 # Agent Orchestration (Fable 지휘 + OMC 워크플로 + 하드웨어 안전 규칙)
@@ -11,6 +11,12 @@ The main session is the **orchestrator** (default model Fable). It owns the plan
 1. Delegate the work, never the judgment. A subagent report is 추정 until you verify it (확인함). (`honest-reporting`)
 2. One loop authority per session (OMC rule): don't run `ralph`, `autopilot`, `team`, `/goal` at the same time.
 3. Physical actions — flash, motor/actuator command, bus write to a live device, deploy, OTA, push — stay in the main session with user approval. No OMC worker or loop does them.
+4. **Use every tier, every session.** The point of this setup is that Haiku and Sonnet do the work they are good enough for, and the main model keeps the judgment. A session where the main model did all of it is the failure mode this rule exists for (2026-11-08: a whole working day ran on Opus alone — every search, edit and review — and the user noticed). So:
+   - Load this skill at the **start** of any multi-step session, not once the work is done.
+   - Every Agent call names the OMC/miles agent **and passes `model`** explicitly (§2's column). Without it the call may be labelled `inherit`.
+   - Never use `general-purpose` when OMC agents exist: it inherits the main model, so a "delegated" review ran on Opus anyway.
+   - "≤ 5 tool calls, do it yourself" (§1) is per task, not a habit for the session. Searches across files go to `explore` (Haiku), README/docs to `writer` (Haiku), a scoped implementation to `executor` (Sonnet), test/build evidence to `verifier` (Sonnet).
+   - Before reporting a unit done, check the routing: which agent and model did the search, the edit, the review? If the answer is "main model" for all three, delegate the next unit.
 
 If OMC is not installed (`oh-my-claudecode:*` agents missing), use §6 fallback and offer `orchestration-setup`.
 
