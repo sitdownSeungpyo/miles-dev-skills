@@ -71,7 +71,7 @@ Let `$OMC` = the newest version dir under `~/.claude/plugins/cache/omc/oh-my-cla
 
 ## 4. Default model = Fable
 
-- Read `~/.claude/settings.json`. `"model": "fable"` already → skip.
+- Read `~/.claude/settings.json`. `"model": "fable"` already → skip. Keep the alias, not a pinned ID: as of 2026-11-10 it resolves to Fable 5.2 (`claude-fable-5-2`), so a new Fable release needs no settings change.
 - Otherwise confirm with the user (Fable is the most expensive tier; it is the orchestrator, OMC agents run on their pinned Haiku/Sonnet/Opus).
 - `jq '.model = "fable"'` to a temp file → validate → move. Preserve all other keys (hooks, statusLine, permissions, env).
 

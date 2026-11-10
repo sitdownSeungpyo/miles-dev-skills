@@ -25,7 +25,7 @@ miles-dev-skills는 OMC가 모르는 **하드웨어 안전 규칙**과 도메인
 
 ## 오케스트레이션 (Fable 지휘 + oh-my-claudecode)
 
-메인 세션(Fable)이 계획·모드 선택·검증·승인을 맡고, 실제 작업은 OMC 워크플로와 에이전트가 합니다.
+메인 세션(Fable, 현재 Fable 5.2 — `fable` 별칭 사용)이 계획·모드 선택·검증·승인을 맡고, 실제 작업은 OMC 워크플로와 에이전트가 합니다.
 
 - **기본 흐름:** `plan`/`ralplan` → `execute`(독립 작업이 여럿이면 `/team`) → `review` → `verify`. 요구사항이 모호하면 먼저 `deep-interview`.
 - **OMC 에이전트(모델 고정):** `explore`(Haiku), `executor`·`debugger`·`tracer`·`test-engineer`·`verifier`·`designer`(Sonnet), `architect`·`code-reviewer`·`security-reviewer`·`critic`·`planner`(Opus) 등 19종.
