@@ -25,10 +25,10 @@ miles-dev-skills는 OMC가 모르는 **하드웨어 안전 규칙**과 도메인
 
 ## 오케스트레이션 (Fable 지휘 + oh-my-claudecode)
 
-메인 세션(Fable, 현재 Fable 5.2 — `fable` 별칭 사용)이 계획·모드 선택·검증·승인을 맡고, 실제 작업은 OMC 워크플로와 에이전트가 합니다.
+메인 세션(기본값: `fable` 별칭 — 최신 Fable 릴리스)이 계획·모드 선택·검증·승인을 맡고, 실제 작업은 OMC 워크플로와 에이전트가 합니다.
 
 - **기본 흐름:** `plan`/`ralplan` → `execute`(독립 작업이 여럿이면 `/team`) → `review` → `verify`. 요구사항이 모호하면 먼저 `deep-interview`.
-- **OMC 에이전트(모델 고정):** `explore`(Haiku), `executor`·`debugger`·`tracer`·`test-engineer`·`verifier`·`designer`(Sonnet), `architect`·`code-reviewer`·`security-reviewer`·`critic`·`planner`(Opus) 등 19종.
+- **OMC 에이전트(기본 모델):** `explore`·`writer`(Haiku), `executor`·`debugger`·`tracer`·`test-engineer`·`verifier`·`designer`(Sonnet), `architect`·`code-reviewer`·`security-reviewer`·`critic`·`planner`(Opus) 등 19종. 이 저장소 규칙에서는 `executor`·`debugger`를 `model: opus`로 호출합니다(작업 모델 = Opus).
 - **miles 전용 에이전트:** `hw-safety-reviewer`(Opus, 읽기 전용). 펌웨어·드라이버·ISR·제어 루프·버스 프로토콜·E-stop·OTA 변경의 필수 관문입니다.
 - **하드웨어 규칙:** 보드 플래시, 실제 장치 명령, OTA, 로봇 배포, push는 메인 세션에서 사용자 승인 후에만 합니다. OMC 워커나 루프(`team`/`autopilot`/`ralph`)는 하지 않습니다.
 

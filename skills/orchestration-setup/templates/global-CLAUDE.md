@@ -1,7 +1,7 @@
 <!-- miles-orchestration:start -->
 ## miles-dev-skills overlay (on top of oh-my-claudecode)
 
-The main session (default model: Fable — currently Fable 5.2, `claude-fable-5-2`, via the `fable` alias) orchestrates. Use OMC workflows and agents, choosing them per `miles-dev-skills:agent-orchestration`:
+The main session (default model: the `fable` alias, which resolves to the current Fable release) orchestrates. Use OMC workflows and agents, choosing them per `miles-dev-skills:agent-orchestration`:
 
 - Default path: `plan`/`ralplan` → `execute` (or `/team` for 2+ independent units) → `review` → `verify`. `deep-interview` first when requirements are vague. One loop authority per session.
 - The main session (Fable) orchestrates and judges; it does not implement. Only one-read/one-command confirmations, user questions, and main-session-only actions (hardware, commit, push) happen there.
