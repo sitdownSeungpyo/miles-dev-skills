@@ -47,6 +47,8 @@ claude plugin install oh-my-claudecode@omc                              # or: pl
 
 Check: `claude plugin details miles-dev-skills@miles-dev-skills` → skills incl. `agent-orchestration`, `orchestration-monitor`, `orchestration-setup` and agent `hw-safety-reviewer`. `claude plugin details oh-my-claudecode@omc` → ~19 agents, hooks loaded.
 
+Updating the plugin does not update the overlay block already in `~/.claude/CLAUDE.md`; re-run step 5 after any update that changes `templates/global-CLAUDE.md`.
+
 ## 3. OMC setup (equivalent of `/oh-my-claudecode:omc-setup --global`, scripted)
 
 Let `$OMC` = the newest version dir under `~/.claude/plugins/cache/omc/oh-my-claudecode/` (numeric sort).

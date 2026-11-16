@@ -94,7 +94,7 @@ Monitoring: OMC HUD (status line) for the one-line summary; `miles-dev-skills:or
 
 ## 6. Fallback without OMC
 
-Use the Agent tool with `subagent_type: general-purpose` (or `Explore` for search) and pass `model: haiku|sonnet|opus` per §2's model column. Same briefs, same rules. Use the **Workflow** tool only if the user explicitly asks for a workflow.
+Use the Agent tool with `subagent_type: general-purpose` (or `Explore` for search) and pass `model: haiku|sonnet|opus` per §2's model column. `general-purpose` is allowed only here, and only with an explicit `model` — without it the agent inherits the main model, which rule 4 forbids. Same briefs, same rules. Use the **Workflow** tool only if the user explicitly asks for a workflow.
 
 ## 7. Example — "모터 온도를 펌웨어에서 읽어서 웹 대시보드에 표시해줘"
 

@@ -22,7 +22,7 @@ claude
 
 1. Preflight: Claude Code, git, node 버전과 OS 확인
 2. 이 저장소를 `$REPO`로 사용 (dirty가 아니면 `git pull --ff-only`)
-3. 플러그인 2개 설치 또는 업데이트: `miles-dev-skills@miles-dev-skills`, `oh-my-claudecode@omc`
+3. 플러그인 2개 설치 또는 업데이트: `miles-dev-skills@miles-dev-skills`, `oh-my-claudecode@omc` (플러그인 업데이트는 `~/.claude/CLAUDE.md`에 이미 들어간 오버레이 블록을 갱신하지 않음 — `templates/global-CLAUDE.md`가 바뀐 업데이트 후에는 아래 6번(SKILL.md 5단계, 오버레이 블록)을 다시 실행)
 4. OMC 셋업: CLAUDE.md coordinator(`setup-claude-md.sh global overwrite`), HUD 상태줄, 캐시 복구
 5. `~/.claude/settings.json`의 `"model"`을 `"fable"`로 변경 (백업 후 다른 키 보존, 사용자 확인)
 6. `~/.claude/CLAUDE.md`의 OMC 블록 뒤에 miles 하드웨어 안전 블록 추가/갱신 (마커로 중복 방지)
