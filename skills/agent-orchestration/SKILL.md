@@ -14,7 +14,7 @@ The main session is the **orchestrator** (default model: the `fable` alias set b
 4. **Use every tier, every session.** The point of this setup is that Haiku and Sonnet do the work they are good enough for, and the main model keeps the judgment. A session where the main model did all of it is the failure mode this rule exists for (2026-11-08: a whole working day ran on Opus alone — every search, edit and review — and the user noticed). So:
    - Load this skill at the **start** of any multi-step session, not once the work is done.
    - Every Agent call names the OMC/miles agent **and passes `model`** explicitly (§2's column). Without it the call may be labelled `inherit`.
-   - Never use `general-purpose` when OMC agents exist: it inherits the main model, so a "delegated" review ran on Opus anyway.
+   - No Agent call may silently inherit the main model: every call passes `model`. With OMC installed, use OMC/miles agents, not `general-purpose` (it inherits the main model by default, so a "delegated" review ran on Opus anyway).
    - The main session does only what needs its judgment or authority: planning and splitting, reading a returned diff/report to accept or reject it, short confirmations (one read, one test run), user questions, and the main-session-only actions (hardware commands, commit, push). Anything else is delegated: code and config changes to `executor` with `model: opus`, debugging to `debugger` (opus), searches across files to `explore` (Haiku), README/docs to `writer` (Haiku), test/build evidence to `verifier` (Sonnet).
    - Before reporting a unit done, check the routing: which agent and model did the search, the edit, the review? If the answer is "main model" for all three, delegate the next unit.
 
@@ -94,7 +94,7 @@ Monitoring: OMC HUD (status line) for the one-line summary; `miles-dev-skills:or
 
 ## 6. Fallback without OMC
 
-Use the Agent tool with `subagent_type: general-purpose` (or `Explore` for search) and pass `model: haiku|sonnet|opus` per §2's model column. `general-purpose` is allowed only here, and only with an explicit `model` — without it the agent inherits the main model, which rule 4 forbids. Same briefs, same rules. Use the **Workflow** tool only if the user explicitly asks for a workflow.
+Use the Agent tool with `subagent_type: general-purpose` (or `Explore` for search) and pass `model: haiku|sonnet|opus` per §2's model column. `general-purpose` is allowed only here, and only with an explicit `model` — without it the agent inherits the main model, and rule 4 says no Agent call may silently inherit the main model. Same briefs, same rules. Use the **Workflow** tool only if the user explicitly asks for a workflow.
 
 ## 7. Example — "모터 온도를 펌웨어에서 읽어서 웹 대시보드에 표시해줘"
 

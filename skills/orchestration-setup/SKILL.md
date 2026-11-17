@@ -47,7 +47,7 @@ claude plugin install oh-my-claudecode@omc                              # or: pl
 
 Check: `claude plugin details miles-dev-skills@miles-dev-skills` → skills incl. `agent-orchestration`, `orchestration-monitor`, `orchestration-setup` and agent `hw-safety-reviewer`. `claude plugin details oh-my-claudecode@omc` → ~19 agents, hooks loaded.
 
-Updating the plugin does not update the overlay block already in `~/.claude/CLAUDE.md`; re-run step 5 after any update that changes `templates/global-CLAUDE.md`.
+Updating the plugin does not update the overlay block already in `~/.claude/CLAUDE.md` — step 5 does (see there).
 
 ## 3. OMC setup (equivalent of `/oh-my-claudecode:omc-setup --global`, scripted)
 
@@ -79,9 +79,14 @@ Let `$OMC` = the newest version dir under `~/.claude/plugins/cache/omc/oh-my-cla
 
 ## 5. miles overlay block in `~/.claude/CLAUDE.md` (must run **after** step 3)
 
-Source: `$REPO/skills/orchestration-setup/templates/global-CLAUDE.md`.
-- File has `<!-- miles-orchestration:start -->` → replace through `<!-- miles-orchestration:end -->` with the template.
-- Else append it after the `<!-- OMC:END -->` block. Never touch content inside OMC markers.
+Source: `$REPO/skills/orchestration-setup/templates/global-CLAUDE.md`. Its start marker carries the plugin version (`<!-- miles-orchestration:start vX.Y.Z -->`). Plugin updates never touch the installed block, so re-run this step after every plugin update.
+
+Find the installed block: from the line starting with `<!-- miles-orchestration:start` (match the prefix, so old unversioned `<!-- miles-orchestration:start -->` markers count) through `<!-- miles-orchestration:end -->`.
+- Block is byte-identical to the template → skip, report "up to date (vX.Y.Z)".
+- Block exists but differs (old or missing version stamp, or changed text) → replace the whole block, markers included, with the template. Keep everything outside the markers byte-for-byte. Report old→new version (`unversioned` if the old marker had none).
+- No block → append the template after the `<!-- OMC:END -->` block. Never touch content inside OMC markers.
+
+Maintainers: bump the template's start-marker version together with `.claude-plugin/plugin.json` and both versions in `.claude-plugin/marketplace.json` on every plugin version bump.
 
 ## 6. Verify and report
 

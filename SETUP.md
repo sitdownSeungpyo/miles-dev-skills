@@ -22,10 +22,14 @@ claude
 
 1. Preflight: Claude Code, git, node 버전과 OS 확인
 2. 이 저장소를 `$REPO`로 사용 (dirty가 아니면 `git pull --ff-only`)
-3. 플러그인 2개 설치 또는 업데이트: `miles-dev-skills@miles-dev-skills`, `oh-my-claudecode@omc` (플러그인 업데이트는 `~/.claude/CLAUDE.md`에 이미 들어간 오버레이 블록을 갱신하지 않음 — `templates/global-CLAUDE.md`가 바뀐 업데이트 후에는 아래 6번(SKILL.md 5단계, 오버레이 블록)을 다시 실행)
+3. 플러그인 2개 설치 또는 업데이트: `miles-dev-skills@miles-dev-skills`, `oh-my-claudecode@omc`
 4. OMC 셋업: CLAUDE.md coordinator(`setup-claude-md.sh global overwrite`), HUD 상태줄, 캐시 복구
 5. `~/.claude/settings.json`의 `"model"`을 `"fable"`로 변경 (백업 후 다른 키 보존, 사용자 확인)
 6. `~/.claude/CLAUDE.md`의 OMC 블록 뒤에 miles 하드웨어 안전 블록 추가/갱신 (마커로 중복 방지)
 7. 검증 결과를 붙여서 보고하고, 새 세션을 열라고 안내
 
 모든 단계는 멱등입니다. 이미 된 단계는 건너뛰고, 그렇다고 보고합니다.
+
+## 업데이트 후
+
+플러그인 업데이트는 `~/.claude/CLAUDE.md`에 이미 들어간 miles 오버레이 블록을 갱신하지 않습니다. 플러그인을 업데이트한 뒤 `orchestration-setup`의 **overlay 단계**(miles overlay block)를 다시 실행하세요. 블록이 템플릿과 같으면 "up to date"로 건너뛰고, 다르면 블록 전체를 교체한 뒤 이전→새 버전을 보고합니다.
